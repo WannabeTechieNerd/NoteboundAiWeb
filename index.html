@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NoteBound AI</title>
+    <meta name="description" content="Intelligent learning platform grounded in personal notes with real Gemma AI inference, verified evidence inspection, adaptive quizzes, and analytics." />
+    <meta property="og:title" content="NoteBound AI" />
+    <meta property="og:description" content="Intelligent learning platform grounded in personal notes with real Gemma AI inference, verified evidence inspection, adaptive quizzes, and analytics." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('notebound-theme') || localStorage.getItem('gemmastudy-theme');
+          if (saved === 'light') {
+            document.documentElement.classList.remove('dark');
+          } else {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="/src/index.css" />
+  </head>
+  <body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur border-b border-zinc-800/80 px-4 lg:px-8 py-3">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        
+        <!-- Logo & Branding -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white font-black text-lg">
+            N
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-base tracking-tight text-white">NoteBound AI</span>
+              <span class="text-xs px-2 py-0.5 rounded-md font-mono font-semibold bg-indigo-950 text-indigo-400 border border-indigo-800">
+                Gemma 4 AI
+              </span>
+            </div>
+            <p class="text-[11px] text-zinc-400 hidden sm:block">Grounded AI Copilot • Verified Evidence • Adaptive Quizzes</p>
+          </div>
+        </div>
+
+        <!-- Global Topic Selector (Visible only when logged in) -->
+        <div id="globalTopicWrapper" class="hidden items-center gap-2 bg-zinc-900/90 border border-zinc-800 rounded-lg px-3 py-1.5">
+          <span class="text-xs text-zinc-400 font-medium">Topic:</span>
+          <select id="globalTopicSelect" class="bg-transparent text-xs text-zinc-200 font-medium focus:outline-none cursor-pointer max-w-[200px] truncate">
+            <option value="all">All Topics & Notes</option>
+          </select>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2.5">
+          <!-- Language selector: affects the app UI and accessibility tools -->
+          <label for="nbLanguageSelect" class="sr-only">Language mode</label>
+          <select id="nbLanguageSelect" aria-label="Language mode" title="Choose app language"
+            class="bg-zinc-900 text-zinc-200 border border-zinc-800 rounded-lg px-2 py-2 text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish">Hinglish</option>
+          </select>
+          <!-- Light / Dark Mode Toggle Switch -->
+          <button
+            id="themeToggleBtn"
+            type="button"
+            role="switch"
+            aria-checked="true"
+            aria-label="Toggle dark and light mode"
+            title="Switch between Dark and Light mode"
+            class="relative inline-flex items-center w-14 h-8 rounded-full p-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 shrink-0"
+          >
+            <!-- Sun Icon (Light) -->
+            <span class="w-6 h-6 flex items-center justify-center text-amber-500 z-10 pointer-events-none">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+              </svg>
+            </span>
+            <!-- Moon Icon (Dark) -->
+            <span class="w-6 h-6 flex items-center justify-center text-indigo-400 z-10 pointer-events-none">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </span>
+            <!-- Sliding Switch Thumb -->
+            <span
+              id="themeToggleThumb"
+              class="absolute top-1 left-1 w-6 h-6 rounded-full bg-indigo-600/25 border border-indigo-500/50 shadow-sm transform translate-x-6 transition-transform duration-200 pointer-events-none"
+            ></span>
+          </button>
+
+          <!-- Authenticated Controls -->
+          <div id="headerAuthControls" class="hidden items-center gap-2.5">
+            <a href="/docs" target="_blank" class="hidden sm:flex px-3 py-1.5 text-xs font-medium text-zinc-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg transition items-center gap-1.5 whitespace-nowrap shrink-0" title="View OpenAPI / Swagger Documentation">
+              <svg class="w-3.5 h-3.5 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+              <span>API Docs</span>
+            </a>
+
+            <button id="openUploadModalBtn" aria-label="Upload study notes" type="button" class="px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span>Upload Notes</span>
+            </button>
+
+            <!-- User Profile & Sign Out -->
+            <div class="flex items-center gap-2 pl-2 border-l border-zinc-800">
+              <div class="flex items-center gap-2">
+                <span id="userAvatarInitials" class="w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  U
+                </span>
+                <div class="hidden lg:block leading-tight max-w-[140px]">
+                  <p id="userDisplayName" class="text-xs font-semibold text-zinc-100 truncate">Student</p>
+                  <p id="userDisplayEmail" class="text-[10px] text-zinc-400 truncate"></p>
+                </div>
+              </div>
+              <button
+                id="logoutBtn"
+                type="button"
+                title="Sign out of NoteBound AI"
+                class="px-2.5 py-1.5 text-xs font-medium text-zinc-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg transition flex items-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span class="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========================================================== -->
+    <!-- INITIAL SESSION VERIFICATION LOADER                        -->
+    <!-- ========================================================== -->
+    <div id="authCheckingLoader" class="flex-1 flex items-center justify-center p-8">
+      <div class="text-center">
+        <div class="inline-block animate-spin w-7 h-7 border-2 border-indigo-500 border-t-transparent rounded-full mb-3"></div>
+        <p class="text-xs font-medium text-zinc-400">Restoring your NoteBound AI workspace...</p>
+      </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- VIEW 1: USER LOGIN & ACCOUNT REGISTRATION                  -->
+    <!-- ========================================================== -->
+    <section id="authView" class="hidden flex-1 flex items-center justify-center px-4 py-10 lg:px-8">
+      <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        
+        <!-- Left Column: Product Overview & Per-User Persistence Value -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="space-y-3">
+            <p class="text-xs font-mono uppercase tracking-widest text-indigo-400 font-semibold">
+              Personal Study Workspace
+            </p>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.12]">
+              Upload your notes once. Master every concept across sessions.
+            </h1>
+            <p class="text-sm sm:text-base text-zinc-400 max-w-xl leading-relaxed">
+              Sign in to access your private study library, grounded Q&amp;A citations, quiz history, topic mastery breakdown, and personalized revision hints—automatically saved to your account.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div class="p-4 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
+              <div class="w-8 h-8 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800/80 flex items-center justify-center mb-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+              </div>
+              <h3 class="text-sm font-bold text-zinc-100 mb-1">Persistent PDF Library</h3>
+              <p class="text-xs text-zinc-400 leading-relaxed">Uploaded PDFs, Markdown, and text documents stay indexed with parsed sections whenever you return.</p>
+            </div>
+
+            <div class="p-4 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
+              <div class="w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/80 flex items-center justify-center mb-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+              <h3 class="text-sm font-bold text-zinc-100 mb-1">Verified Evidence</h3>
+              <p class="text-xs text-zinc-400 leading-relaxed">Every AI answer and quiz explanation links directly to character-verified passages in your own notes.</p>
+            </div>
+
+            <div class="p-4 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
+              <div class="w-8 h-8 rounded-lg bg-amber-950 text-amber-400 border border-amber-800/80 flex items-center justify-center mb-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+              </div>
+              <h3 class="text-sm font-bold text-zinc-100 mb-1">Adaptive Analytics</h3>
+              <p class="text-xs text-zinc-400 leading-relaxed">Track quiz history, accuracy scores, topic mastery levels, and targeted study hints over time.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Login / Register Form Card -->
+        <div class="lg:col-span-5">
+          <div class="p-6 sm:p-8 bg-zinc-900/70 rounded-2xl border border-zinc-800 shadow-2xl">
+            <div class="mb-6">
+              <h2 id="authCardHeading" class="text-xl font-bold text-white">Sign in to NoteBound AI</h2>
+              <p id="authCardSubheading" class="text-xs text-zinc-400 mt-1">Enter your account credentials to load your personal study library.</p>
+            </div>
+
+            <!-- Mode Tabs -->
+            <div class="flex rounded-lg bg-zinc-950 p-1 border border-zinc-800 mb-5">
+              <button
+                id="authTabLogin"
+                type="button"
+                class="flex-1 py-2 text-xs font-semibold rounded-md bg-indigo-600 text-white transition cursor-pointer"
+              >
+                Sign In
+              </button>
+              <button
+                id="authTabRegister"
+                type="button"
+                class="flex-1 py-2 text-xs font-semibold rounded-md text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
+              >
+                Create Account
+              </button>
+            </div>
+
+            <!-- Inline Error / Feedback Banner -->
+            <div id="authErrorBox" class="hidden mb-4 p-3 rounded-lg bg-red-950/60 border border-red-800 text-xs text-red-200 leading-relaxed"></div>
+
+            <!-- Google Sign In via Firebase Auth -->
+            <button
+              id="googleSignInBtn"
+              type="button"
+              class="w-full mb-4 py-2.5 px-4 bg-zinc-800 hover:bg-zinc-750 text-white text-xs font-semibold rounded-lg border border-zinc-700 hover:border-zinc-600 transition flex items-center justify-center gap-2.5 cursor-pointer shadow-sm"
+            >
+              <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+
+            <div class="relative flex py-1 items-center mb-4">
+              <div class="flex-grow border-t border-zinc-800"></div>
+              <span class="flex-shrink mx-3 text-[11px] text-zinc-500 uppercase tracking-wider font-medium">or continue with email</span>
+              <div class="flex-grow border-t border-zinc-800"></div>
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="loginForm" class="space-y-4">
+              <div>
+                <label for="loginEmail" class="block text-xs font-medium text-zinc-300 mb-1.5">Email Address</label>
+                <input
+                  id="loginEmail"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  placeholder="you@university.edu"
+                  class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label for="loginPassword" class="block text-xs font-medium text-zinc-300">Password</label>
+                  <button
+                    type="button"
+                    data-toggle-password="loginPassword"
+                    class="text-[11px] font-medium text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                  >
+                    Show
+                  </button>
+                </div>
+                <input
+                  id="loginPassword"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                  placeholder="Enter your password"
+                  class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <button
+                id="loginSubmitBtn"
+                type="submit"
+                class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span id="loginSubmitLabel">Sign In to Workspace</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </button>
+            </form>
+
+            <!-- Register Form (Hidden by default) -->
+            <form id="registerForm" class="hidden space-y-4">
+              <div>
+                <label for="registerName" class="block text-xs font-medium text-zinc-300 mb-1.5">Full Name</label>
+                <input
+                  id="registerName"
+                  type="text"
+                  autocomplete="name"
+                  required
+                  minlength="2"
+                  placeholder="Alex Morgan"
+                  class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label for="registerEmail" class="block text-xs font-medium text-zinc-300 mb-1.5">Email Address</label>
+                <input
+                  id="registerEmail"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  placeholder="you@university.edu"
+                  class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label for="registerPassword" class="block text-xs font-medium text-zinc-300">Password</label>
+                  <button
+                    type="button"
+                    data-toggle-password="registerPassword"
+                    class="text-[11px] font-medium text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                  >
+                    Show
+                  </button>
+                </div>
+                <input
+                  id="registerPassword"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                  minlength="6"
+                  placeholder="At least 6 characters"
+                  class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label for="registerConfirmPassword" class="block text-xs font-medium text-zinc-300 mb-1.5">Confirm Password</label>
+                <input
+                  id="registerConfirmPassword"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                  minlength="6"
+                  placeholder="Re-enter your password"
+                  class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <button
+                id="registerSubmitBtn"
+                type="submit"
+                class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span id="registerSubmitLabel">Create Account</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- VIEW 2: AUTHENTICATED USER WORKSPACE                       -->
+    <!-- ========================================================== -->
+    <div id="appWorkspace" class="hidden flex-1 flex flex-col">
+      <!-- Main Navigation Tab Bar -->
+      <nav class="border-b border-zinc-800/80 bg-zinc-950 px-4 lg:px-8">
+        <div class="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto py-2">
+          <button data-tab-target="dashboard" class="px-4 py-2 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow-sm flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            <span>Dashboard &amp; Progress</span>
+          </button>
+
+          <button data-tab-target="qa" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-zinc-400 hover:text-zinc-200 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            <span>Grounded AI Q&amp;A</span>
+          </button>
+
+          <button data-tab-target="quizzes" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-zinc-400 hover:text-zinc-200 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+            <span>AI Quizzes &amp; Scoring</span>
+          </button>
+
+          <button data-tab-target="notes" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-zinc-400 hover:text-zinc-200 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <span>My Notes Library</span>
+          </button>
+
+          <button data-tab-target="centralLibrary" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-zinc-400 hover:text-zinc-200 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            <span>Central Library</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- App Content Area -->
+      <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8">
+
+        <!-- ============================================== -->
+        <!-- TAB 1: DASHBOARD & ADAPTIVE PROGRESS           -->
+        <!-- ============================================== -->
+        <section id="tab-dashboard" class="tab-content-panel space-y-6">
+          
+          <!-- Welcome Hero Banner -->
+          <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-950/70 via-zinc-900 to-zinc-900 border border-indigo-900/40 p-6 sm:p-8">
+            <div class="relative z-10 max-w-2xl">
+              <p id="welcomeUserSubtitle" class="text-xs font-mono uppercase tracking-wider text-indigo-400 font-semibold mb-2">
+                Personal Study Workspace
+              </p>
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Evidence-Grounded Learning Copilot
+              </h1>
+              <p class="mt-2 text-sm text-zinc-300 leading-relaxed">
+                Every answer and quiz question is anchored directly in your uploaded notes with verified quotations, source character offsets, and personalized revision recommendations saved to your account.
+              </p>
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button onclick="openModal('uploadModal')" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-2 cursor-pointer">
+                  <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span>Upload Notes</span>
+                </button>
+                <button onclick="switchTab('qa')" type="button" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-lg border border-zinc-700 transition flex items-center gap-2 cursor-pointer">
+                  <span>Ask a Grounded Question</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+                <button onclick="switchTab('quizzes')" type="button" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-lg border border-zinc-700 transition cursor-pointer">
+                  Take an Adaptive Quiz
+                </button>
+              </div>
+            </div>
+            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          </div>
+
+          <!-- Metrics Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="p-5 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
+              <span class="text-xs font-medium text-zinc-400">Total Notes Indexed</span>
+              <div class="flex items-baseline gap-2 mt-2">
+                <span id="statTotalNotes" class="text-3xl font-bold text-white">0</span>
+                <span class="text-xs text-indigo-400 font-medium">PDF, TXT &amp; MD</span>
+              </div>
+            </div>
+
+            <div class="p-5 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
+              <span class="text-xs font-medium text-zinc-400">Quiz Assessments Taken</span>
+              <div class="flex items-baseline gap-2 mt-2">
+                <span id="statTotalQuizzes" class="text-3xl font-bold text-white">0</span>
+                <span class="text-xs text-emerald-400 font-medium">Saved to Account</span>
+              </div>
+            </div>
+
+            <div class="p-5 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
+              <span class="text-xs font-medium text-zinc-400">Overall Accuracy Rate</span>
+              <div class="flex items-baseline gap-2 mt-2">
+                <span id="statAvgAccuracy" class="text-3xl font-bold text-white">0%</span>
+                <span class="text-xs text-zinc-400">All topics evaluated</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Adaptive Recommendations & Topic Mastery -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Topic Mastery (2 cols) -->
+            <div class="lg:col-span-2 p-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/80">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-bold text-zinc-100 text-base">Topic Mastery Breakdown</h3>
+                  <p class="text-xs text-zinc-400">Dynamic tracking based on your personal quiz performance history</p>
+                </div>
+                <button onclick="switchTab('quizzes')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer">Test Topic &rarr;</button>
+              </div>
+              <div id="topicMasteryContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <p class="text-xs text-zinc-500 py-4">Loading mastery data...</p>
+              </div>
+            </div>
+
+            <!-- Adaptive Study Recommendations (1 col) -->
+            <div class="p-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/80 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                  <h3 class="font-bold text-zinc-100 text-base">Adaptive Study Hints</h3>
+                </div>
+                <p class="text-xs text-zinc-400 mb-4">Targeted suggestions generated from missed questions</p>
+                <div id="adaptiveRecsContainer" class="space-y-3">
+                  <p class="text-xs text-zinc-500">Loading recommendations...</p>
+                </div>
+              </div>
+              <div class="mt-4 pt-4 border-t border-zinc-800/80 text-center">
+                <span class="text-[11px] text-zinc-500">Updated automatically with every quiz attempt</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Quiz Attempts Table -->
+          <div class="p-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/80">
+            <h3 class="font-bold text-zinc-100 text-base mb-1">Recent Quiz History</h3>
+            <p class="text-xs text-zinc-400 mb-4">Saved across sessions in your personal account</p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-zinc-800 text-xs font-semibold text-zinc-400">
+                    <th class="py-2.5 px-4">Assessment Title</th>
+                    <th class="py-2.5 px-4">Topic</th>
+                    <th class="py-2.5 px-4">Score</th>
+                    <th class="py-2.5 px-4">Completed</th>
+                    <th class="py-2.5 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="recentAttemptsList">
+                  <tr><td colspan="5" class="py-4 text-center text-xs text-zinc-500">Loading attempts...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- TAB 2: GROUNDED AI Q&A                         -->
+        <!-- ============================================== -->
+        <section id="tab-qa" class="tab-content-panel hidden space-y-6">
+          <div class="p-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/80">
+            <div class="max-w-3xl">
+              <h2 class="text-xl font-bold text-white">Ask Grounded Questions</h2>
+              <p class="text-xs text-zinc-400 mt-1">
+                Gemma synthesizes answers strictly based on your uploaded notes. If a question is unsupported, you will receive an explicit insufficient-evidence notice. Every claim includes verifiable quotations.
+              </p>
+            </div>
+
+            <!-- Prompt Suggestions -->
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="text-xs text-zinc-500 self-center mr-1">Try asking:</span>
+              <button type="button" class="sample-prompt-pill px-3 py-1 bg-zinc-800/80 hover:bg-zinc-700/80 text-xs text-zinc-300 rounded-md border border-zinc-700 transition cursor-pointer">
+                What are the three server states in Raft consensus?
+              </button>
+              <button type="button" class="sample-prompt-pill px-3 py-1 bg-zinc-800/80 hover:bg-zinc-700/80 text-xs text-zinc-300 rounded-md border border-zinc-700 transition cursor-pointer">
+                How does ATP synthase produce ATP during chemiosmosis?
+              </button>
+              <button type="button" class="sample-prompt-pill px-3 py-1 bg-zinc-800/80 hover:bg-zinc-700/80 text-xs text-zinc-300 rounded-md border border-zinc-700 transition cursor-pointer">
+                What triggers a follower to begin an election in Raft?
+              </button>
+              <button type="button" class="sample-prompt-pill px-3 py-1 bg-zinc-800/80 hover:bg-zinc-700/80 text-xs text-zinc-300 rounded-md border border-zinc-700 transition cursor-pointer">
+                Summarize the main concepts in my notes
+              </button>
+            </div>
+
+            <!-- Question Form -->
+            <form id="qaForm" class="mt-5 space-y-3">
+              <div class="flex flex-col sm:flex-row gap-3">
+                <div class="sm:w-64">
+                  <label class="block text-xs text-zinc-400 mb-1 font-medium">Context Scope</label>
+                  <select id="qaTopicSelect" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2.5 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500">
+                    <option value="all">All Study Notes</option>
+                  </select>
+                </div>
+                <div class="flex-1">
+                  <label class="block text-xs text-zinc-400 mb-1 font-medium">Your Question</label>
+                  <div class="flex gap-2">
+                    <input type="text" id="qaInput" aria-label="Ask a question about your study notes" placeholder="Ask anything covered in your uploaded notes..." required class="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500" />
+                    <button type="submit" id="qaSubmitBtn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold shadow transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                      <span>Ask AI</span>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- Loading Indicator -->
+            <div id="qaLoadingIndicator" class="hidden mt-8 p-6 text-center bg-zinc-900/60 rounded-xl border border-zinc-800">
+              <div class="inline-block animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full mb-2"></div>
+              <p class="text-xs font-medium text-zinc-300">Gemma AI is scanning your notes and verifying evidence quotations...</p>
+            </div>
+
+            <!-- Grounded Answer Result Card -->
+            <div id="qaAnswerContainer" class="hidden mt-6 p-6 bg-zinc-900/70 rounded-2xl border border-zinc-800 shadow-xl space-y-4">
+              <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-zinc-800">
+                <div class="flex items-center gap-2">
+                  <span id="answerStatusBadge" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1.5">
+                    Grounded in Notes
+                  </span>
+                  <span id="answerValidityBadge" class="hidden px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-950 text-sky-400 border border-sky-800 items-center gap-1.5">
+                    🌐 Web Grounded (Validity: <strong id="answerValidityScoreText">94%</strong>)
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-zinc-400">
+                  <span>Inference:</span>
+                  <span id="answerModelBadge" class="font-mono text-indigo-300 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-[11px]">Gemma</span>
+                </div>
+              </div>
+
+              <!-- Web Search Grounding Banner with Validity Score Meter -->
+              <div id="webGroundingBanner" class="hidden p-4 rounded-xl bg-sky-950/30 border border-sky-800/60 space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                    <span class="text-xs font-bold text-sky-200">Live Web Search Grounding Synthesis</span>
+                  </div>
+                  <span id="validityScoreConfidenceLabel" class="text-[11px] font-mono px-2 py-0.5 rounded bg-sky-900/70 text-sky-300 border border-sky-700">
+                    High Confidence
+                  </span>
+                </div>
+                <p class="text-xs text-zinc-300 leading-relaxed">
+                  The query was not present in your personal notes library. Gemini retrieved authoritative academic knowledge from real-time web search grounding to construct this verified educational response.
+                </p>
+                <div class="space-y-1 pt-1">
+                  <div class="flex justify-between text-[11px] text-zinc-400 font-mono">
+                    <span>Academic Validity Score</span>
+                    <span id="validityScorePct">92%</span>
+                  </div>
+                  <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                    <div id="validityScoreBar" class="bg-gradient-to-r from-indigo-500 to-sky-400 h-2 rounded-full transition-all duration-500" style="width: 92%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Answer text -->
+              <div id="answerContent" class="text-sm leading-relaxed text-zinc-200"></div>
+
+              <!-- Web sources clickable links -->
+              <div id="answerWebSourcesContainer" class="hidden space-y-2 pt-2 border-t border-zinc-800/80">
+                <h4 class="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                  <span>Grounding Web Sources &amp; Citations</span>
+                </h4>
+                <div id="answerWebSourcesList" class="flex flex-wrap gap-2"></div>
+              </div>
+
+              <!-- Evidence quotes list from personal notes -->
+              <div id="answerEvidenceList"></div>
+            </div>
+          </div>
+
+          <!-- Saved Grounded Q&A History per User -->
+          <div class="p-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/80">
+            <div class="mb-4">
+              <h3 class="font-bold text-zinc-100 text-base">Recent Saved Q&amp;A History</h3>
+              <p class="text-xs text-zinc-400">Past grounded questions and verified citations saved to your account</p>
+            </div>
+            <div id="qaHistoryList" class="space-y-3">
+              <p class="text-xs text-zinc-500 py-3">No questions asked yet.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- TAB 3: AI QUIZZES & SCORING                    -->
+        <!-- ============================================== -->
+        <section id="tab-quizzes" class="tab-content-panel hidden space-y-6">
+          
+          <!-- Quiz Configuration Generator -->
+          <div class="p-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/80">
+            <h2 class="text-xl font-bold text-white mb-1">Generate Grounded Quiz</h2>
+            <p class="text-xs text-zinc-400 mb-5">
+              Gemma AI generates multi-choice questions anchored in your notes. Incorrect answers provide grounded explanations and targeted revision hints.
+            </p>
+
+            <form id="quizGenForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-xs text-zinc-400 mb-1 font-medium">Topic Focus</label>
+                <select id="quizTopicSelect" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500">
+                  <option value="all">All Topics</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs text-zinc-400 mb-1 font-medium">Number of Questions</label>
+                <select id="quizCountSelect" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500">
+                  <option value="2">2 Questions (Fast)</option>
+                  <option value="3" selected>3 Questions (Standard)</option>
+                  <option value="5">5 Questions (Comprehensive)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs text-zinc-400 mb-1 font-medium">Difficulty Level</label>
+                <select id="quizDiffSelect" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500">
+                  <option value="Easy">Easy (Recall)</option>
+                  <option value="Medium" selected>Medium (Application)</option>
+                  <option value="Hard">Hard (Deep Analysis)</option>
+                </select>
+              </div>
+
+              <div class="flex items-end">
+                <button type="submit" id="generateQuizBtn" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow transition flex items-center justify-center gap-2 cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                  <span>Generate Assessment</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Quiz Loading Indicator -->
+          <div id="quizLoadingIndicator" class="hidden p-8 text-center bg-zinc-900/60 rounded-xl border border-zinc-800">
+            <div class="inline-block animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full mb-3"></div>
+            <p class="text-sm font-semibold text-zinc-200">Gemma AI is formulating grounded questions from your notes...</p>
+            <p class="text-xs text-zinc-400 mt-1">Generating distractors, authentic quotations, and revision hints</p>
+          </div>
+
+          <!-- Score Summary Box (scrolls into view after grade) -->
+          <div id="quizSummaryBox" class="hidden"></div>
+
+          <!-- Active Interactive Quiz Card -->
+          <div id="activeQuizCard" class="hidden p-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/80 space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-2 pb-4 border-b border-zinc-800">
+              <div>
+                <h2 id="quizTitleHeader" class="text-lg font-bold text-white">Assessment</h2>
+                <p id="quizMetaHeader" class="text-xs text-zinc-400 mt-0.5"></p>
+              </div>
+            </div>
+
+            <!-- Questions container -->
+            <div id="quizQuestionsContainer" class="space-y-4"></div>
+
+            <!-- Submit button container -->
+            <div id="quizSubmitContainer" class="pt-4 border-t border-zinc-800 flex justify-end"></div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- TAB 4: STUDY NOTES LIBRARY                     -->
+        <!-- ============================================== -->
+        <section id="tab-notes" class="tab-content-panel hidden space-y-6">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-white">Study Notes Library</h2>
+              <p class="text-xs text-zinc-400 mt-0.5">Upload PDF, Markdown, or text files once—your notes stay permanently saved to your account.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="reseedBtn" type="button" class="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-medium text-zinc-300 rounded-lg transition cursor-pointer" title="Load sample notes for Raft Consensus and Cellular Respiration into your library">
+                Load Sample Notes
+              </button>
+              <button onclick="openModal('uploadModal')" type="button" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Upload Notes</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Notes grid -->
+          <div id="notesListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p class="text-xs text-zinc-500 py-6">Loading notes...</p>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- TAB 5: CENTRAL LIBRARY (PEER NOTES SHARING)    -->
+        <!-- ============================================== -->
+        <section id="tab-centralLibrary" class="tab-content-panel hidden space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-violet-950/60 via-zinc-900 to-zinc-900 border border-violet-900/50">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-900/80 text-violet-300 border border-violet-700">
+                  Campus Knowledge Exchange
+                </span>
+                <span class="text-xs text-zinc-400 font-mono" id="centralLibraryProfileSummary"></span>
+              </div>
+              <h2 class="text-2xl font-extrabold text-white tracking-tight">Central Library</h2>
+              <p class="text-xs text-zinc-300 mt-1 max-w-2xl leading-relaxed">
+                Discover and study verified notes uploaded by peer students. Ranked intelligently based on your <strong>College, University, Course, and Stream</strong>. Read immediately or save to your library with zero duplicate storage!
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button id="openProfileEditBtn" type="button" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span>Edit Academic Profile</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Pills & Search Bar -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
+            <!-- Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="centralLibraryFilterPills">
+              <button type="button" data-central-filter="all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition cursor-pointer whitespace-nowrap">
+                All Shared Notes
+              </button>
+              <button type="button" data-central-filter="college" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 hover:bg-zinc-700 transition cursor-pointer whitespace-nowrap">
+                🏛️ My College
+              </button>
+              <button type="button" data-central-filter="university" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 hover:bg-zinc-700 transition cursor-pointer whitespace-nowrap">
+                🏫 My University
+              </button>
+              <button type="button" data-central-filter="course" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 hover:bg-zinc-700 transition cursor-pointer whitespace-nowrap">
+                📖 My Course
+              </button>
+              <button type="button" data-central-filter="stream" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 hover:bg-zinc-700 transition cursor-pointer whitespace-nowrap">
+                🔬 My Stream
+              </button>
+            </div>
+
+            <!-- Search input -->
+            <div class="relative sm:w-72">
+              <input
+                id="centralLibrarySearchInput"
+                type="text"
+                placeholder="Search peer notes, topics, colleges..."
+                class="w-full bg-zinc-900 border border-zinc-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+              />
+              <svg class="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+          </div>
+
+          <!-- Notes Grid -->
+          <div id="centralLibraryNotesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p class="text-xs text-zinc-500 py-6">Loading Central Library notes...</p>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SLIDE-OVER DRAWER: EVIDENCE INSPECTOR           -->
+    <!-- ============================================== -->
+    <aside id="evidenceInspectorDrawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-zinc-950 border-l border-zinc-800 shadow-2xl p-6 overflow-y-auto transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
+          <div class="flex items-center gap-2">
+            <div class="p-1 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <h3 class="font-bold text-base text-white">Evidence Inspector</h3>
+          </div>
+          <button id="closeInspectorBtn" class="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <!-- Verification Metadata Badges -->
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span id="inspectorMatchPct" class="px-2.5 py-1 rounded text-xs font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+            100% Match
+          </span>
+          <span id="inspectorLineNum" class="px-2.5 py-1 rounded text-xs font-mono text-zinc-300 bg-zinc-900 border border-zinc-800">
+            Line --
+          </span>
+          <span id="inspectorStatus" class="px-2.5 py-1 rounded text-xs text-indigo-300 bg-indigo-950/60 border border-indigo-800/60">
+            Exact Match Verified
+          </span>
+        </div>
+
+        <!-- Quoted passage -->
+        <div class="mt-5">
+          <h4 class="text-xs uppercase tracking-wider font-semibold text-zinc-400 mb-1.5">Cited Quotation</h4>
+          <blockquote id="inspectorQuote" class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs italic text-indigo-200 leading-relaxed font-serif"></blockquote>
+        </div>
+
+        <!-- Source note context -->
+        <div class="mt-5">
+          <h4 class="text-xs uppercase tracking-wider font-semibold text-zinc-400 mb-1.5">Source Document &amp; Section</h4>
+          <div class="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800 space-y-1">
+            <p id="inspectorNoteTitle" class="text-xs font-semibold text-white"></p>
+            <p id="inspectorSectionTitle" class="text-[11px] text-indigo-400 font-mono"></p>
+          </div>
+        </div>
+
+        <!-- Surrounding passage with highlighted match -->
+        <div class="mt-5">
+          <h4 class="text-xs uppercase tracking-wider font-semibold text-zinc-400 mb-1.5">Full Surrounding Context Passage</h4>
+          <div id="inspectorContextPassage" class="p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 text-xs leading-relaxed text-zinc-300 font-mono whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <div class="pt-6 border-t border-zinc-800">
+        <button onclick="closeEvidenceInspector()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 rounded-lg text-xs font-semibold transition border border-zinc-800 cursor-pointer">
+          Close Inspector
+        </button>
+      </div>
+    </aside>
+
+    <!-- ============================================== -->
+    <!-- MODAL: UPLOAD OR PASTE NOTE                    -->
+    <!-- ============================================== -->
+    <div id="uploadModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+      <div class="bg-zinc-950 border border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
+          <h3 class="font-bold text-base text-white">Add Study Note</h3>
+          <button id="closeUploadModalBtn" class="text-zinc-400 hover:text-white p-1 rounded cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <!-- Modal Method Switcher -->
+        <div class="flex rounded-lg bg-zinc-900 p-1 mb-5">
+          <button id="tabUploadFile" type="button" class="flex-1 py-1.5 text-xs font-semibold rounded-md bg-indigo-600 text-white transition cursor-pointer">
+            Upload Document / Photo (OCR)
+          </button>
+          <button id="tabPasteText" type="button" class="flex-1 py-1.5 text-xs font-semibold rounded-md text-zinc-400 hover:text-white transition cursor-pointer">
+            Paste Plain Notes
+          </button>
+        </div>
+
+        <!-- File Upload Section -->
+        <div id="uploadFileSection">
+          <form id="uploadFileForm" class="space-y-3">
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1 font-medium">Select Note File or Handwritten Note Photo</label>
+              <input type="file" id="noteFileInput" aria-label="Choose a notes file or handwritten note photo" accept=".txt,.pdf,.md,.png,.jpg,.jpeg,.webp,.bmp,.tiff" required class="w-full text-xs text-zinc-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-indigo-400 hover:file:bg-zinc-700 bg-zinc-900 p-2 rounded-lg border border-zinc-800 cursor-pointer" />
+              <p class="text-[11px] text-zinc-500 mt-1 flex items-center gap-1.5">
+                <span class="text-indigo-400 font-semibold">Tesseract.js OCR:</span>
+                <span>Supports handwritten note photos &amp; scans (.png, .jpg, .jpeg, .webp), PDFs, &amp; text files.</span>
+              </p>
+            </div>
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1 font-medium">Note Title (Optional)</label>
+              <input type="text" id="noteFileTitle" placeholder="e.g. Distributed Consensus &amp; Raft" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1 font-medium">Topic Categorization (Optional)</label>
+              <input type="text" id="noteFileTopic" placeholder="e.g. Computer Science: Distributed Systems" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div class="p-2.5 bg-zinc-900/60 rounded-lg border border-zinc-800/80 text-[11px] text-zinc-400 flex items-center gap-2">
+              <span class="text-emerald-400">⚡</span>
+              <span><strong>Smart Deduplication:</strong> Identical notes uploaded by multiple students share canonical text to save database storage.</span>
+            </div>
+            <div class="pt-3 flex justify-end gap-2">
+              <button type="button" onclick="closeModal('uploadModal')" class="px-4 py-2 bg-zinc-900 text-zinc-300 text-xs font-medium rounded-lg hover:bg-zinc-800 transition cursor-pointer">Cancel</button>
+              <button type="submit" id="uploadFileSubmitBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow transition inline-flex items-center gap-2 cursor-pointer">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span id="uploadFileSubmitLabel">Upload &amp; Process Document</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Paste Text Section (hidden by default) -->
+        <div id="pasteTextSection" class="hidden">
+          <form id="pasteNoteForm" class="space-y-3">
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1 font-medium">Note Title</label>
+              <input type="text" id="pasteNoteTitle" placeholder="e.g. Principles of Quantum Superposition" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1 font-medium">Topic</label>
+              <input type="text" id="pasteNoteTopic" placeholder="e.g. Physics: Quantum Mechanics" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1 font-medium">Note Content</label>
+              <textarea id="pasteNoteContent" rows="6" placeholder="Paste comprehensive notes here..." required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+            </div>
+            <div class="pt-3 flex justify-end gap-2">
+              <button type="button" onclick="closeModal('uploadModal')" class="px-4 py-2 bg-zinc-900 text-zinc-300 text-xs font-medium rounded-lg hover:bg-zinc-800 transition cursor-pointer">Cancel</button>
+              <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow transition cursor-pointer">Save Note</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: NOTE READER & SECTIONS                  -->
+    <!-- ============================================== -->
+    <div id="noteReaderModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+      <div class="bg-zinc-950 border border-zinc-800 rounded-2xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl relative max-h-[90dvh] overflow-y-auto overscroll-contain nb-note-reader-modal">
+        <div class="flex items-center justify-between pb-3 border-b border-zinc-800 mb-3 sticky top-0 z-10 bg-zinc-950/95 backdrop-blur-sm">
+          <div>
+            <h3 id="noteReaderTitle" class="font-bold text-base text-white"></h3>
+            <p id="noteReaderTopic" class="text-xs text-indigo-400 font-mono"></p>
+          </div>
+          <button onclick="closeModal('noteReaderModal')" class="text-zinc-400 hover:text-white p-1 rounded cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <p id="noteReaderStats" class="text-xs text-zinc-500 mb-3"></p>
+
+        <section id="noteReaderVideos" class="mb-4 rounded-xl border border-indigo-800/60 bg-indigo-950/20 p-4 sm:p-5" aria-labelledby="noteVideoHeading">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+            <div><h4 id="noteVideoHeading" class="text-sm font-semibold text-zinc-100">Explore concepts with videos & study material</h4><p class="text-xs text-zinc-400 mt-1">Find concept-wise videos, reading material, practice questions, diagrams and quick revision from your uploaded notes.</p></div>
+            <span class="text-[10px] uppercase tracking-wider text-indigo-300 border border-indigo-800 rounded-full px-2 py-1 self-start">Multi-resource learning</span>
+          </div>
+          <div class="nb-resource-intro"><span class="nb-resource-count" id="noteResourceCount">Concept resources</span><span class="text-[11px] text-zinc-500">Open one concept at a time to keep the page tidy.</span></div>
+          <div id="noteReaderVideoList" class="nb-resource-list"></div>
+          <p class="text-[11px] text-zinc-500 mt-3">Links open relevant search results in a new tab. Check the source and level before relying on external material.</p>
+        </section>
+        <div class="nb-note-sections space-y-3 pr-1" id="noteReaderSections"></div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: PROFILE ONBOARDING & ACADEMIC INFO      -->
+    <!-- ============================================== -->
+    <div id="profileOnboardingModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+      <div class="bg-zinc-950 border border-indigo-900/60 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow">
+              🎓
+            </div>
+            <div>
+              <h3 class="font-bold text-base text-white">Student Academic Profile</h3>
+              <p class="text-[11px] text-zinc-400">Unlock your Central Library campus match</p>
+            </div>
+          </div>
+          <button id="closeProfileModalBtn" type="button" class="text-zinc-400 hover:text-white p-1 rounded cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <div id="profileModalNotice" class="p-3 mb-4 rounded-xl bg-indigo-950/40 border border-indigo-800/60 text-xs text-indigo-200 leading-relaxed">
+          Please set up your profile details. NoteBound AI uses this to rank peer notes in the <strong>Central Library</strong> and connect you with students studying your exact syllabus!
+        </div>
+
+        <div id="profileModalErrorBox" class="hidden mb-4 p-3 rounded-lg bg-red-950/60 border border-red-800 text-xs text-red-200"></div>
+
+        <form id="profileOnboardingForm" class="space-y-3.5">
+          <div>
+            <label for="profileModalName" class="block text-xs font-medium text-zinc-300 mb-1">Full Name</label>
+            <input
+              id="profileModalName"
+              type="text"
+              required
+              placeholder="e.g. Alex Morgan"
+              class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="profileModalCourse" class="block text-xs font-medium text-zinc-300 mb-1">Course</label>
+              <input
+                id="profileModalCourse"
+                type="text"
+                required
+                placeholder="e.g. B.Tech / B.Sc / BCA"
+                class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label for="profileModalStream" class="block text-xs font-medium text-zinc-300 mb-1">Stream / Branch</label>
+              <input
+                id="profileModalStream"
+                type="text"
+                required
+                placeholder="e.g. Computer Science / AI"
+                class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="profileModalCollege" class="block text-xs font-medium text-zinc-300 mb-1">College / Institute</label>
+            <input
+              id="profileModalCollege"
+              type="text"
+              required
+              placeholder="e.g. Department of Engineering & Technology"
+              class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label for="profileModalUniversity" class="block text-xs font-medium text-zinc-300 mb-1">University</label>
+            <input
+              id="profileModalUniversity"
+              type="text"
+              required
+              placeholder="e.g. National Institute of Technology / Stanford"
+              class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div class="pt-3 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              id="skipProfileModalBtn"
+              class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-medium rounded-lg border border-zinc-800 transition cursor-pointer"
+            >
+              Skip for Now
+            </button>
+            <button
+              type="submit"
+              id="profileModalSubmitBtn"
+              class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-2 cursor-pointer"
+            >
+              <span>Save Profile &amp; Continue</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- NoteBound AI Smart Audio Navigation / Accessibility Mode -->
+    <button id="accessibilityToggle" type="button" class="nb-access-fab" aria-expanded="false" aria-controls="accessibilityPanel" aria-label="Open Smart Audio Navigation accessibility controls" title="Accessibility Mode">
+      <span aria-hidden="true">◉</span><span class="nb-access-fab-label">Accessibility</span>
+    </button>
+    <section id="accessibilityPanel" class="nb-access-panel" role="region" aria-labelledby="accessibilityHeading" hidden>
+      <div class="nb-access-head">
+        <div><p class="nb-access-eyebrow">NOTBOUND AI · INCLUSIVE LEARNING</p><h2 id="accessibilityHeading">Smart Audio Navigation</h2><p class="nb-access-subtitle">Listen, navigate and study with less visual effort.</p></div>
+        <button id="accessibilityClose" type="button" class="nb-access-icon-btn" aria-label="Close accessibility controls">✕</button>
+      </div>
+      <div class="nb-access-status" id="accessibilityStatus" role="status" aria-live="polite">Accessibility tools are ready.</div>
+      <div class="nb-access-actions">
+        <button id="accessibilityReadPage" type="button" class="nb-access-primary">▶ Read current page</button>
+        <button id="accessibilityStopSpeech" type="button" class="nb-access-secondary">■ Stop speech</button>
+        <button id="accessibilityVoiceBtn" type="button" class="nb-access-secondary">🎙 Start voice commands</button>
+        <button id="accessibilityUploadBtn" type="button" class="nb-access-secondary">＋ Upload notes</button>
+      </div>
+      <div class="nb-access-setting"><label for="accessibilitySpeed">Speech speed <strong id="accessibilitySpeedValue">1×</strong></label><input id="accessibilitySpeed" type="range" min="0.7" max="1.5" step="0.1" value="1" /></div>
+      <div class="nb-access-setting"><label for="accessibilityFontSize">Text size <strong id="accessibilityFontValue">100%</strong></label><input id="accessibilityFontSize" type="range" min="100" max="150" step="10" value="100" /></div>
+      <div class="nb-access-toggles">
+        <label><input id="accessibilityHoverToggle" type="checkbox" /> Speak on hover / focus</label>
+        <label><input id="accessibilityContrastToggle" type="checkbox" /> High contrast mode</label>
+      </div>
+      <p class="nb-access-help"><strong>Voice commands:</strong> “read this page”, “upload notes”, “open dashboard”, “open notes”, “ask a question”, “start quiz”, “pause reading”, “resume reading”, “stop reading”, “high contrast on”.</p>
+      <p class="nb-access-help">Voice input requires a supported browser and microphone permission. You can always use Tab, Shift+Tab, Enter and Space without a mouse.</p>
+    </section>
+    <div id="accessibilityLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Vanilla JavaScript application controller -->
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

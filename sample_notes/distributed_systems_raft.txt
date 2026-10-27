@@ -1,0 +1,31 @@
+# Distributed Systems: The Raft Consensus Algorithm
+
+## 1. Overview and Core Objective
+The Raft consensus algorithm was designed by Diego Ongaro and John Ousterhout at Stanford University as a more understandable alternative to Multi-Paxos. Consensus algorithms allow a collection of machines to work as a coherent group that can survive the failures of some of its members. Raft decomposes consensus into three relatively independent subproblems: Leader Election, Log Replication, and Safety.
+
+## 2. Server Roles and Terms
+At any given time, each server in a Raft cluster is in one of three states: Leader, Follower, or Candidate. In normal operation, there is exactly one leader and all of the other servers are followers. Followers are passive: they issue no requests on their own but simply respond to requests from leaders and candidates.
+
+Raft divides time into arbitrary terms of logical clocks numbered with consecutive integers. Each term begins with an election, in which one or more candidates attempt to become leader. If a candidate wins the election, then it serves as leader for the rest of the term. If the election results in a split vote, the term ends without a leader, and a new term begins shortly.
+
+## 3. Leader Election and Heartbeats
+Raft uses a heartbeat mechanism to trigger leader election. When servers start up, they begin as followers. A server remains in the follower state as long as it receives valid RPCs from a leader or candidate. Leaders send periodic heartbeats (AppendEntries RPCs that carry no log entries) to all followers in order to maintain their authority.
+
+If a follower receives no communication over a period of time called the election timeout (typically between 150ms and 300ms), it assumes there is no viable leader and begins an election to choose a new leader. To begin an election, a follower increments its current term, transitions to candidate state, votes for itself, and issues RequestVote RPCs in parallel to each of the other servers in the cluster.
+
+A candidate wins an election if it receives votes from a majority of the servers in the full cluster for the same term. Each server votes on a first-come-first-served basis for at most one candidate in a given term. Once a candidate wins, it immediately sends empty AppendEntries heartbeats to establish its authority.
+
+## 4. Log Replication
+Once a leader has been elected, it begins servicing client requests. Each client request contains a command to be executed by the replicated state machines. The leader appends the command to its log as a new entry, then issues AppendEntries RPCs in parallel to each of the other servers to replicate the entry.
+
+When the entry has been safely replicated (meaning stored on a majority of the servers), the leader commits the entry to its state machine and returns the result of the execution to the client. A log entry is committed once the leader that created the entry has replicated it on a majority of the servers.
+
+## 5. Safety and Election Restriction
+Raft guarantees that each of the following safety properties holds at all times:
+- Election Safety: at most one leader can be elected in a given term.
+- Leader Append-Only: a leader never overwrites or truncates its entries; it only appends new entries.
+- Log Matching Property: if two logs contain an entry with the same index and term, then the logs are identical in all entries up through the given index.
+- Leader Completeness: if a log entry is committed in a given term, then that entry will be present in the logs of the leaders for all higher-numbered terms.
+- State Machine Safety: if a server has applied a log entry at a given index to its state machine, no other server will ever apply a different log entry for the same index.
+
+To enforce Leader Completeness, Raft uses an election restriction: the RequestVote RPC includes information about the candidate's log, and a voter denies its vote if its own log is more up-to-date than that of the candidate. Specifically, if the candidate's last entry has a lower term, or the same term but a shorter log length, the voter rejects the vote.

@@ -1,0 +1,35 @@
+# Biology: Cellular Respiration and Energy Production
+
+## 1. Overview of Cellular Respiration
+Cellular respiration is the fundamental metabolic process through which eukaryotic cells break down biochemical nutrients, primarily glucose, to produce adenosine triphosphate (ATP) while releasing carbon dioxide and water as byproducts. The overall balanced chemical equation is:
+C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O + approximately 30 to 32 ATP molecules.
+
+The complete pathway comprises four distinct stages: Glycolysis, the Link Reaction (Pyruvate Decarboxylation), the Citric Acid Cycle (Krebs Cycle), and Oxidative Phosphorylation.
+
+## 2. Stage 1: Glycolysis in the Cytosol
+Glycolysis occurs entirely within the cytoplasm of the cell and does not require oxygen (anaerobic). During glycolysis, a single six-carbon glucose molecule is broken down through a sequence of ten enzyme-catalyzed steps into two three-carbon molecules of pyruvate.
+
+Energy investment phase: The cell consumes 2 molecules of ATP to phosphorylate glucose and fructose-6-phosphate.
+Energy payoff phase: Substrate-level phosphorylation generates 4 ATP molecules and reduces 2 NAD+ coenzymes to 2 NADH.
+Net yield of glycolysis: 2 pyruvate molecules, 2 net ATP molecules, and 2 NADH molecules per glucose.
+
+## 3. Stage 2: The Link Reaction (Pyruvate Oxidation)
+When oxygen is present, pyruvate is transported across the mitochondrial membranes into the mitochondrial matrix. In the matrix, the pyruvate dehydrogenase complex oxidizes pyruvate. One carbon atom is removed as carbon dioxide (CO2), NAD+ is reduced to NADH, and the remaining two-carbon acetyl group is attached to Coenzyme A, forming Acetyl-CoA.
+
+Net yield per original glucose (2 pyruvates): 2 Acetyl-CoA, 2 CO2, and 2 NADH.
+
+## 4. Stage 3: The Citric Acid (Krebs) Cycle
+In the mitochondrial matrix, each Acetyl-CoA combines with a four-carbon oxaloacetate molecule to form six-carbon citrate. As citrate cycles through oxidation steps, two carbons leave as CO2. For each Acetyl-CoA that enters the Krebs cycle:
+- 3 NAD+ are reduced to 3 NADH.
+- 1 FAD is reduced to 1 FADH2.
+- 1 ATP (or GTP) is synthesized by substrate-level phosphorylation.
+- Oxaloacetate is regenerated to begin the cycle again.
+
+Because one glucose produces two Acetyl-CoA molecules, two turns of the cycle yield: 6 NADH, 2 FADH2, 2 ATP, and 4 CO2.
+
+## 5. Stage 4: Oxidative Phosphorylation and Chemiosmosis
+Oxidative phosphorylation takes place along the inner mitochondrial membrane (cristae) and produces the vast majority of cellular ATP. It consists of two tightly coupled components: the Electron Transport Chain (ETC) and Chemiosmosis.
+
+1. Electron Transport Chain: High-energy electrons donated by NADH and FADH2 pass through four protein complexes (Complex I, II, III, and IV). As electrons move down the electrochemical gradient toward oxygen (the terminal electron acceptor), hydrogen ions (protons) are actively pumped from the mitochondrial matrix into the intermembrane space, creating a steep proton-motive force. Oxygen combines with electrons and protons to form metabolic water.
+
+2. Chemiosmosis and ATP Synthase: Protons flow back into the matrix down their concentration gradient through the ATP Synthase enzyme channel. The kinetic rotation of ATP synthase catalyzes the phosphorylation of ADP and inorganic phosphate (Pi) into ATP. Oxidative phosphorylation yields roughly 26 to 28 ATP per glucose molecule.
